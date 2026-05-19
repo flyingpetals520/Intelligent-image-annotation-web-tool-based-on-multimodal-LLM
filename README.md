@@ -1,4 +1,28 @@
+<div align="center">
+<!-- 项目首图/Logo -->
+<img src="sakuna.png" alt="Image Annotation Tool Banner" width="250">
+</div>
+
 # 图像智能标注工具
+
+<p>
+  <a href="https://www.python.org/downloads/">
+    <img src="https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white" alt="Python">
+  </a>
+  <a href="https://pytorch.org/">
+    <img src="https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C?logo=pytorch&logoColor=white" alt="PyTorch">
+  </a>
+  <a href="https://flask.palletsprojects.com/">
+    <img src="https://img.shields.io/badge/Flask-2.0%2B-000000?logo=flask&logoColor=white" alt="Flask">
+  </a>
+  <a href="https://huggingface.co/Qwen">
+    <img src="https://img.shields.io/badge/Qwen3.5-4B%2F27B%2F35B--A3B-yellow?logo=huggingface&logoColor=white" alt="Qwen">
+  </a>
+  <br>
+  <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
+  <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey" alt="Platform">
+  <img src="https://img.shields.io/badge/Status-Active%20Development-brightgreen" alt="Status">
+</p>
 
 这是一个面向文生图模型训练合成数据、体育、人机交互等（最初是为了搓二次元动漫/插画数据集，老二刺猿了）的多标签智能图像分类标注系统。开发的动机是获得分层、超长的图像细粒度文本描述的人工成本较高，耗时较多，而利用成熟的多模态模型可以完成自动化高质量的图像描述来完成标注，进而为下游任务提供高质量的文本描述数据集，为姿态识别、文生图任务的模型训练等提供支持。支持 **本地 VLM 模型自动标注** + **远程 API 自动标注** + **人工校正** 三种模式。后续还会尝试努力打通和 ckn lab 的 ChenkinNoob-XL-V0.5 模型的生态，让数据集到生图全流程直接端到端贯通。（还要非常感谢智谱团队的 GLM 5.1 模型出色的 agent 能力，项目大部分编码由其完成，vibe coding 开源心目第一强）。此外还有自建的十万+张高质量二次元图片数据集，关注并联系我的 X 账号 https://x.com/flyingpetal472
 
