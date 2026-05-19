@@ -3,7 +3,7 @@
 <img src="sakuna.png" alt="Image Annotation Tool Banner" width="250">
 </div>
 
-# 图像智能标注工具
+# 智能多模态图像标注工具
 
 <p>
   <a href="https://www.python.org/downloads/">
