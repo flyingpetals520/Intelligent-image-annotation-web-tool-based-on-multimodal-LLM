@@ -21,15 +21,16 @@ def load_label_config():
 
 
 def build_prompt(config):
-    """根据标签配置构建提示词"""
+    """根据标签配置构建提示词 (只包含启用的分类)"""
+    enabled_config = {cat: info for cat, info in config.items() if info.get("enabled", True)}
     categories_desc = []
-    for cat, info in config.items():
+    for cat, info in enabled_config.items():
         mode = "单选" if not info.get("multi", False) else "多选"
         labels = ", ".join(info["labels"])
         categories_desc.append(f"  \"{cat}\"({mode}): [{labels}]")
 
     example = {}
-    for cat, info in config.items():
+    for cat, info in enabled_config.items():
         if info.get("multi", False):
             example[cat] = ["标签1"]
         else:
@@ -202,11 +203,28 @@ class LocalVLM:
     def is_loaded(self):
         return self.model is not None
 
-    def _prepare_image(self, image_path):
-        """加载并预处理图片"""
-        from PIL import Image
+    def unload(self):
+        """释放模型和处理器，清理显存"""
+        import torch
+        if self.model is not None:
+            del self.model
+            self.model = None
+        if self.processor is not None:
+            del self.processor
+            self.processor = None
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        logger.info("Model unloaded, GPU memory cleared.")
 
+    def _prepare_image(self, image_path):
+        """加载并预处理图片 (从文件路径)"""
+        from PIL import Image
         img = Image.open(image_path)
+        return self._normalize_image(img)
+
+    def _normalize_image(self, img):
+        """归一化 PIL Image: RGBA->RGB、其他模式->RGB、限制最大边 1024px"""
+        from PIL import Image
         if img.mode == "RGBA":
             bg = Image.new("RGB", img.size, (255, 255, 255))
             bg.paste(img, mask=img.split()[3])
@@ -273,6 +291,10 @@ class LocalVLM:
         if not self.is_loaded():
             raise RuntimeError("模型未加载，请先调用 load()")
 
+        # 每次标注时重新加载配置，使 enabled 开关立即生效
+        self.config = load_label_config()
+        self.prompt = build_prompt(self.config)
+
         img = self._prepare_image(image_path)
         inputs = self._build_inputs(img)
 
@@ -314,15 +336,16 @@ class LocalVLM:
         labels = normalize_labels(raw_labels, self.config)
         return labels
 
-    def generate_text(self, image_path, custom_prompt, max_new_tokens=4096, enable_thinking=False):
+    def generate_text(self, image_path, custom_prompt, max_new_tokens=4096, enable_thinking=False, pil_image=None):
         """
         使用自定义 prompt 生成文本描述
 
         Args:
-            image_path: 图片文件路径
+            image_path: 图片文件路径 (pil_image 为 None 时使用)
             custom_prompt: 自定义提示词
             max_new_tokens: 最大生成 token 数
             enable_thinking: 是否启用思考模式
+            pil_image: 可选 PIL Image，提供则直接使用而非从 image_path 加载 (用于选区裁剪)
 
         Returns:
             str: 模型生成的文本
@@ -332,7 +355,7 @@ class LocalVLM:
         if not self.is_loaded():
             raise RuntimeError("模型未加载，请先调用 load()")
 
-        img = self._prepare_image(image_path)
+        img = self._normalize_image(pil_image) if pil_image is not None else self._prepare_image(image_path)
         messages = [
             {
                 "role": "user",
@@ -382,6 +405,61 @@ class LocalVLM:
             logger.warning(f"Model returned empty output for {image_path}")
             return ""
 
+        return decoded_list[0].strip()
+
+    def generate_text_only(self, prompt, max_new_tokens=512, temperature=None):
+        """纯文本生成（不需要图片），用于标签转换等文本任务"""
+        import torch
+
+        if not self.is_loaded():
+            raise RuntimeError("模型未加载，请先调用 load()")
+
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt}
+                ]
+            }
+        ]
+
+        text = self.processor.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+            enable_thinking=False,
+        )
+
+        processor_kwargs = dict(
+            text=[text],
+            padding=True,
+            return_tensors="pt",
+        )
+        inputs = self.processor(**processor_kwargs).to(self.model.device)
+
+        gen_temp = temperature if temperature is not None else self.label_temperature
+
+        with torch.no_grad():
+            output_ids = self.model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                do_sample=True,
+                temperature=gen_temp,
+                top_p=0.9,
+                top_k=50,
+            )
+
+        input_len = inputs.input_ids.shape[1]
+        generated_ids = output_ids[:, input_len:]
+        decoded_list = self.processor.batch_decode(
+            generated_ids, skip_special_tokens=True
+        )
+
+        del inputs, output_ids, generated_ids
+        torch.cuda.empty_cache()
+
+        if not decoded_list:
+            return ""
         return decoded_list[0].strip()
 
 
