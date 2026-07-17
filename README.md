@@ -242,14 +242,6 @@ curl http://localhost:5000/api/export?format=csv -o annotations.csv
 pip install torch --index-url https://download.pytorch.org/whl/cu126
 ```
 
-### CUDA out of memory
-
-```
-[ERROR] CUDA out of memory
-```
-
-尝试降低精度：`--dtype float16`，或关闭其他占用显存的程序。
-
 ### 图片无法显示
 
 确保图片文件名不含特殊字符，支持的格式：JPG、JPEG、PNG、BMP、GIF、WebP。
