@@ -21,15 +21,15 @@
   <img src="https://img.shields.io/badge/Status-Active%20Development-brightgreen" alt="Status">
 </p>
 
-这是一个面向图像生成模型合成训练数据、体育、人机交互等（最初是为了搓二次元动漫/插画数据集微调的，老二刺猿了）的多标签智能图像分类标注系统。开发的动机是获得分层、超长的图像细粒度文本描述的人工成本较高，耗时较多，而利用成熟的多模态模型可以完成自动化高质量的图像描述来完成标注，进而为下游任务提供高质量的文本描述数据集，为姿态识别、文生图任务的模型训练等提供支持。支持 **本地 VLM 模型自动标注** + **远程 API 自动标注** + **人工校正** 三种模式。后续还会尝试努力打通和 ckn lab 的 ChenkinNoob-XL-V0.5 模型的生态，让数据集合成到生图全流程直接端到端贯通。（非常感谢智谱团队的 GLM 5.1 模型出色的 agent 能力（v1.0.0 版本用的是 GLM 5.3 build了~），项目大部分编码由其完成，vibe coding 开源心目第一强）。此外还有自建的十万+张高质量二次元图片数据集，联系并关注我。
+这是一个面向图像生成模型合成训练数据、体育、人机交互等（最初是为了搓二次元动漫/插画数据集微调的，老二刺猿了）的多标签智能图像分类标注系统。开发的动机是获得分层、超长的图像细粒度文本描述的人工成本较高，耗时较多，而利用成熟的多模态模型可以完成自动化高质量的图像描述来完成标注，进而为下游任务提供高质量的文本描述数据集，为姿态识别、文生图任务的模型训练等提供支持。支持 **本地 VLM 模型自动标注** + **远程 API 自动标注** + **人工校正** 三种模式。后续还会尝试努力打通和 ckn lab 的 ChenkinNoob-XL-V0.5 模型的生态，让数据集合成到生图全流程直接端到端贯通。（非常感谢智谱团队的 GLM 5.1 模型出色的 agent 能力（v1.0.0 及以后版本用的是 GLM 5.3 build了~），项目大部分编码由其完成，vibe coding 开源心目第一强）。此外还有自建的十万+张高质量二次元图片数据集，联系并关注我。
 
 ## 功能特性
 
 - 10 大预设分类、80+ 预设标签（性别、发色、发型、瞳色、角色特征、服装、姿势、场景、风格、人物数量等等，可自己定义）
 - 支持远程 API 自动标注（OpenAI / Anthropic）和本地部署多模态 VLM 模型自动标注（部署 Qwen3.5-4B 27B 等，完全离线）灵活切换，预设调教 Prompt（也可自己定义）
-- v1.0.0（默认）版本支持图片局部 crop 剪切多轮 VQA 描述校正
-- v1.0.0（默认）版本支持灵活可定义的 batch 批量推理标注
-- 支持部署 DWpose 模型进行图像人物姿态识别并保存骨骼元数据
+- v1.0.0（default）版本支持图片局部 crop 剪切多轮 VQA 描述校正
+- v1.0.0（default）版本支持灵活可定义的 batch 批量推理标注
+- 支持部署 DWpose 模型等进行图像人物姿态识别并保存骨骼元数据
 - Web 可视化标注界面，轻量易用，支持键盘快捷键
 - 图片状态管理：未标注 -> 自动标注(黄) -> 已验证(绿)
 - 表格饼形图查看管理数据集存储情况，运行存储感知和无损压缩
@@ -62,10 +62,9 @@ pip install flask pillow
 ### 2. 本地模型依赖（使用 Qwen3.5 自动标注）
 
 ```bash
-# 安装 PyTorch (CUDA 12.x)
+# 安装 PyTorch
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
 
-# transformers 5.x 已支持 Qwen3.5，确认版本
 pip install transformers>=5.0.0
 ```
 
@@ -77,7 +76,7 @@ pip install transformers>=5.0.0
 
 ### 模式一：本地模型自动标注（推荐）
 
-个人推荐使用 Qwen3.5-27B 和 Qwen3.5-35B-A3B。以我的 Qwen3.5-4B 为例，使用本地部署的 Qwen3.5-4B 多模态模型，完全离线运行：
+个人推荐使用 Qwen3.x-27B 和 Qwen3.x-35B-A3B。以我的 Qwen3.5-4B 为例，使用本地部署的 Qwen3.5-4B 多模态模型，完全离线运行：
 
 ```bash
 python annotate.py --local-model Your_model_path
@@ -85,7 +84,7 @@ python annotate.py --local-model Your_model_path
 
 启动后：
 1. 模型会自动加载到 GPU（约 8GB 显存，首次加载需 1-2 分钟）
-2. 浏览器打开 `http://localhost:5000`
+2. 浏览器打开 `http://localhost:xxxx`
 3. 点击 **「自动标注」** 标注当前图片，或 **「批量自动标注」** 批量处理
 4. 自动标注的结果以黄色标签显示，点击可修改
 5. 确认无误后点击 **「确认无误」**
@@ -96,7 +95,7 @@ python annotate.py --local-model Your_model_path
 python annotate.py --local-model Your_model_path --dtype float16
 
 # 指定端口
-python annotate.py --local-model Your_model_path --port 8080
+python annotate.py --local-model Your_model_path --port xxxx
 ```
 
 ### 模式二：使用命令行批量标注（无 Web 界面）
@@ -116,7 +115,7 @@ python local_vlm.py --model Your_model_path --image-dir . --batch-size 50
 
 ### 模式三：远程 API 自动标注
 
-#### OpenAI 兼容 API（GPT-4o、DeepSeek、通义千问等）
+#### OpenAI 兼容 API（GPT-5、DeepSeek、千问等）
 
 ```bash
 python annotate.py --api-key YOUR_KEY --api-type openai --base-url https://api.xxx.com
