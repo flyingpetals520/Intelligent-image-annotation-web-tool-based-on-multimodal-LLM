@@ -15,28 +15,25 @@
   <a href="https://flask.palletsprojects.com/">
     <img src="https://img.shields.io/badge/Flask-2.0%2B-000000?logo=flask&logoColor=white" alt="Flask">
   </a>
-  <a href="https://huggingface.co/Qwen">
-    <img src="https://img.shields.io/badge/Qwen3.5-4B%2F27B%2F35B--A3B-yellow?logo=huggingface&logoColor=white" alt="Qwen">
-  </a>
   <br>
   <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
   <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey" alt="Platform">
   <img src="https://img.shields.io/badge/Status-Active%20Development-brightgreen" alt="Status">
 </p>
 
-这是一个面向文生图模型训练合成数据、体育、人机交互等（最初是为了搓二次元动漫/插画数据集，老二刺猿了）的多标签智能图像分类标注系统。开发的动机是获得分层、超长的图像细粒度文本描述的人工成本较高，耗时较多，而利用成熟的多模态模型可以完成自动化高质量的图像描述来完成标注，进而为下游任务提供高质量的文本描述数据集，为姿态识别、文生图任务的模型训练等提供支持。支持 **本地 VLM 模型自动标注** + **远程 API 自动标注** + **人工校正** 三种模式。后续还会尝试努力打通和 ckn lab 的 ChenkinNoob-XL-V0.5 模型的生态，让数据集合成到生图全流程直接端到端贯通。（非常感谢智谱团队的 GLM 5.1 模型出色的 agent 能力（v1.0.0 版本用的是 GLM 5.2 build了~），项目大部分编码由其完成，vibe coding 开源心目第一强）。此外还有自建的十万+张高质量二次元图片数据集，联系并关注我的 X 账号 https://x.com/flyingpetal472
+这是一个面向图像生成模型合成训练数据、体育、人机交互等（最初是为了搓二次元动漫/插画数据集微调的，老二刺猿了）的多标签智能图像分类标注系统。开发的动机是获得分层、超长的图像细粒度文本描述的人工成本较高，耗时较多，而利用成熟的多模态模型可以完成自动化高质量的图像描述来完成标注，进而为下游任务提供高质量的文本描述数据集，为姿态识别、文生图任务的模型训练等提供支持。支持 **本地 VLM 模型自动标注** + **远程 API 自动标注** + **人工校正** 三种模式。后续还会尝试努力打通和 ckn lab 的 ChenkinNoob-XL-V0.5 模型的生态，让数据集合成到生图全流程直接端到端贯通。（非常感谢智谱团队的 GLM 5.1 模型出色的 agent 能力（v1.0.0 版本用的是 GLM 5.3 build了~），项目大部分编码由其完成，vibe coding 开源心目第一强）。此外还有自建的十万+张高质量二次元图片数据集，联系并关注我。
 
 ## 功能特性
 
-- 10 大分类、80+ 预设标签（性别、发色、发型、瞳色、角色特征、服装、姿势、场景、风格、人物数量等等，可自己定义）
+- 10 大预设分类、80+ 预设标签（性别、发色、发型、瞳色、角色特征、服装、姿势、场景、风格、人物数量等等，可自己定义）
 - 支持远程 API 自动标注（OpenAI / Anthropic）和本地部署多模态 VLM 模型自动标注（部署 Qwen3.5-4B 27B 等，完全离线）灵活切换，预设调教 Prompt（也可自己定义）
-- v1.0.0（默认）版本支持图片局部 crop 剪切多轮 VQA 校正描述
+- v1.0.0（默认）版本支持图片局部 crop 剪切多轮 VQA 描述校正
 - v1.0.0（默认）版本支持灵活可定义的 batch 批量推理标注
 - 支持部署 DWpose 模型进行图像人物姿态识别并保存骨骼元数据
 - Web 可视化标注界面，轻量易用，支持键盘快捷键
 - 图片状态管理：未标注 -> 自动标注(黄) -> 已验证(绿)
 - 表格饼形图查看管理数据集存储情况，运行存储感知和无损压缩
-- 导出 JSON / CSV 格式
+- 导出 JSON / CSV 格式标注
 
 ## 文件说明
 
